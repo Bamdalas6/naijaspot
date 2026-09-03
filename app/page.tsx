@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Header } from "@/components/Header";
-import { CategoryFilter } from "@/components/CategoryFilter";
 import { CardDeck } from "@/components/CardDeck";
 import { EmptyState } from "@/components/EmptyState";
 import { BottomNav } from "@/components/BottomNav";
@@ -16,6 +15,7 @@ export default function DiscoverPage() {
   const [selectedState, setSelectedState] = useState<NigerianState>("Lagos");
   const [selectedCategory, setSelectedCategory] = useState<SpotCategory>("All");
   const [selectedSort, setSelectedSort] = useState<SortOption>("featured");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSortModalOpen, setIsSortModalOpen] = useState(false);
   const [deckCompleted, setDeckCompleted] = useState(false);
   const [deckKey, setDeckKey] = useState(0);
@@ -23,16 +23,26 @@ export default function DiscoverPage() {
   const { places, loading } = usePlaces(selectedState, selectedCategory);
   const { savedCount, saveSpot, removeSpot, isSaved } = useSavedPlaces();
 
-  // Reset deck state when state, category, or sort changes
   useEffect(() => {
     setDeckCompleted(false);
     setDeckKey((prev) => prev + 1);
   }, [selectedState, selectedCategory, selectedSort]);
 
-  // Apply sorting logic
-  const sortedPlaces = useMemo(() => {
+  // Apply search and sorting
+  const filteredAndSortedPlaces = useMemo(() => {
     if (!places) return [];
-    const list = [...places];
+    let list = [...places];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.city.toLowerCase().includes(q) ||
+          p.address.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
+      );
+    }
 
     if (selectedSort === "rating") {
       return list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -65,7 +75,7 @@ export default function DiscoverPage() {
     }
 
     return list;
-  }, [places, selectedSort]);
+  }, [places, searchQuery, selectedSort]);
 
   const handleResetDeck = () => {
     setDeckCompleted(false);
@@ -78,28 +88,26 @@ export default function DiscoverPage() {
 
   return (
     <div className="flex flex-col flex-1 h-screen overflow-hidden bg-sky-gradient relative pb-20 select-none">
-      {/* Top Header & Sort Button (without duplicate saved bookmark) */}
+      {/* Top Section: Navigation + Search + Category Story Bubbles */}
       <Header
         selectedState={selectedState}
-        onOpenSortModal={() => setIsSortModalOpen(true)}
-      />
-
-      {/* Airbnb-style Icon Category Filter (Side-by-side without numbers) */}
-      <CategoryFilter
         selectedCategory={selectedCategory}
         onSelectCategory={(cat) => setSelectedCategory(cat)}
+        onOpenSortModal={() => setIsSortModalOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={(q) => setSearchQuery(q)}
       />
 
-      {/* Main Discover Swipe Deck with appropriate padding */}
-      <main className="flex-1 flex flex-col items-center justify-center p-2 relative overflow-hidden">
+      {/* Main Discover Card Deck (Full-bleed Tinder style matching screenshot) */}
+      <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden py-1">
         {loading ? (
-          <div className="w-full max-w-md h-[520px] max-h-[72vh] flex flex-col items-center justify-center bg-white/70 backdrop-blur-md rounded-[32px] border border-white/80 shadow-md">
+          <div className="w-full max-w-[340px] h-[450px] max-h-[58vh] flex flex-col items-center justify-center bg-white/70 backdrop-blur-md rounded-[30px] border border-white/80 shadow-md">
             <Loader2 className="w-8 h-8 text-[#0284c7] animate-spin mb-2.5" />
             <span className="text-xs font-bold text-slate-700">
-              Discovering spots in {selectedState}...
+              Finding spots in {selectedState}...
             </span>
           </div>
-        ) : deckCompleted || sortedPlaces.length === 0 ? (
+        ) : deckCompleted || filteredAndSortedPlaces.length === 0 ? (
           <EmptyState
             selectedState={selectedState}
             selectedCategory={selectedCategory}
@@ -112,7 +120,7 @@ export default function DiscoverPage() {
         ) : (
           <CardDeck
             key={`${selectedState}-${selectedCategory}-${selectedSort}-${deckKey}`}
-            places={sortedPlaces}
+            places={filteredAndSortedPlaces}
             onSaveSpot={saveSpot}
             onAllCardsSwiped={handleAllCardsSwiped}
             isSaved={isSaved}
@@ -121,10 +129,13 @@ export default function DiscoverPage() {
         )}
       </main>
 
-      {/* Bottom Floating Navigation Dock (The only place for Saved Spots) */}
-      <BottomNav savedCount={savedCount} />
+      {/* Floating 5-tab Bottom Navigation Bar */}
+      <BottomNav
+        savedCount={savedCount}
+        onOpenAddModal={() => setIsSortModalOpen(true)}
+      />
 
-      {/* Friendly Sort & Filter Modal */}
+      {/* Filter / State Modal */}
       <SortFilterModal
         isOpen={isSortModalOpen}
         onClose={() => setIsSortModalOpen(false)}

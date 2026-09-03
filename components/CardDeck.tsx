@@ -11,7 +11,6 @@ import {
 import { Spot } from "@/types";
 import { PlaceCard } from "./PlaceCard";
 import { PlaceDetailsModal } from "./PlaceDetailsModal";
-import { ActionButtons } from "./ActionButtons";
 import { toast } from "sonner";
 
 interface CardDeckProps {
@@ -41,6 +40,7 @@ export function CardDeck({
 
   const currentCard = deck[0];
   const nextCard = deck[1];
+  const thirdCard = deck[2];
 
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-250, 250], [-14, 14]);
@@ -55,9 +55,9 @@ export function CardDeck({
 
     if (direction === "right") {
       onSaveSpot(swipedSpot);
-      toast.success("Added to saved spots! 📍", {
+      toast.success("Saved spot! 📍", {
         description: `${swipedSpot.name} • ${swipedSpot.city}`,
-        duration: 2000,
+        duration: 1800,
         position: "top-center",
       });
     }
@@ -71,8 +71,8 @@ export function CardDeck({
   };
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    const threshold = 80;
-    const velocityThreshold = 350;
+    const threshold = 75;
+    const velocityThreshold = 320;
 
     if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
       handleSwipe("right");
@@ -81,11 +81,17 @@ export function CardDeck({
     }
   };
 
-  const handleUndo = () => {
-    if (history.length === 0) return;
-    const [lastAction, ...remainingHistory] = history;
-    setDeck((prev) => [lastAction.spot, ...prev]);
-    setHistory(remainingHistory);
+  const handleToggleSaveCurrent = () => {
+    if (!currentCard) return;
+    if (isSaved?.(currentCard.id)) {
+      onRemoveSpot?.(currentCard.id);
+      toast.info("Removed from saved spots", { description: currentCard.name });
+    } else {
+      onSaveSpot(currentCard);
+      toast.success("Saved spot! 📍", {
+        description: currentCard.name,
+      });
+    }
   };
 
   if (!currentCard) {
@@ -94,19 +100,26 @@ export function CardDeck({
 
   return (
     <>
-      <div className="flex flex-col items-center justify-between w-full max-w-md mx-auto relative px-5 flex-1 select-none">
-        {/* Swipe Deck Container */}
-        <div className="relative w-full h-[520px] max-h-[72vh] flex items-center justify-center my-auto">
-          {/* Next Card in Stack */}
+      <div className="flex flex-col items-center justify-center w-full max-w-[350px] sm:max-w-[370px] mx-auto relative px-3 select-none my-auto">
+        {/* Swipe Deck Container (aspect ratio matching screenshot) */}
+        <div className="relative w-full h-[450px] max-h-[58vh] flex items-center justify-center">
+          {/* 3rd Card in background (fanned out slightly right) */}
+          {thirdCard && (
+            <div
+              key={thirdCard.id}
+              className="absolute inset-0 w-full h-full transform scale-[0.92] translate-y-3 rotate-[3deg] opacity-40 pointer-events-none rounded-[30px] overflow-hidden shadow-lg transition-all duration-300 z-0 bg-slate-200"
+            >
+              <PlaceCard spot={thirdCard} isFront={false} />
+            </div>
+          )}
+
+          {/* 2nd Card in background (fanned out slightly left, exactly like screenshot) */}
           {nextCard && (
             <div
               key={nextCard.id}
-              className="absolute inset-0 w-full h-full transform scale-[0.96] translate-y-3 opacity-90 pointer-events-none transition-all duration-300 z-10"
+              className="absolute inset-0 w-full h-full transform scale-[0.96] translate-y-1.5 rotate-[-2.5deg] opacity-75 pointer-events-none rounded-[30px] overflow-hidden shadow-xl transition-all duration-300 z-10 bg-slate-200"
             >
-              <PlaceCard
-                spot={nextCard}
-                isFront={false}
-              />
+              <PlaceCard spot={nextCard} isFront={false} />
             </div>
           )}
 
@@ -119,12 +132,12 @@ export function CardDeck({
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.65}
               onDragEnd={handleDragEnd}
-              initial={{ scale: 0.96, opacity: 0, y: 10 }}
+              initial={{ scale: 0.96, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{
                 x: swipeDirection === "right" ? 500 : -500,
                 opacity: 0,
-                scale: 0.9,
+                scale: 0.88,
                 transition: { duration: 0.22, ease: "easeOut" },
               }}
               transition={{ type: "spring", damping: 24, stiffness: 280 }}
@@ -135,20 +148,12 @@ export function CardDeck({
                 isFront={true}
                 likeOpacity={likeOpacity}
                 nopeOpacity={nopeOpacity}
+                isSaved={isSaved?.(currentCard.id)}
+                onToggleSave={handleToggleSaveCurrent}
                 onOpenDetails={() => setSelectedDetailsSpot(currentCard)}
               />
             </motion.div>
           </AnimatePresence>
-        </div>
-
-        {/* Bottom Control Buttons */}
-        <div className="w-full pb-1">
-          <ActionButtons
-            onSwipeLeft={() => handleSwipe("left")}
-            onSwipeRight={() => handleSwipe("right")}
-            onUndo={handleUndo}
-            canUndo={history.length > 0}
-          />
         </div>
       </div>
 
