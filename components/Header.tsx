@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { SlidersHorizontal, ChevronLeft, Search, Plus, Compass } from "lucide-react";
+import { SlidersHorizontal, ChevronLeft, Search } from "lucide-react";
 import { NigerianState, SpotCategory } from "@/types";
 import { CATEGORIES } from "@/lib/mockData";
 
@@ -16,7 +16,6 @@ interface HeaderProps {
   onSearchChange?: (q: string) => void;
 }
 
-// Category avatars matching the circular story bubbles in the screenshot
 const CATEGORY_AVATARS: Record<string, string> = {
   All: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=150&q=80",
   "Eatery & Dining": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=150&q=80",
@@ -45,7 +44,7 @@ export function Header({
 }: HeaderProps) {
   return (
     <header className="w-full px-5 pt-3 pb-2 flex flex-col gap-3 select-none">
-      {/* 1. Top Navigation Bar (matching screenshot: < Find a Match, Profile) */}
+      {/* 1. Top Navigation Bar */}
       <div className="flex items-center justify-between">
         <Link
           href="/"
@@ -68,7 +67,7 @@ export function Header({
         </div>
       </div>
 
-      {/* 2. Search Bar with Filter Button (matching screenshot pill search) */}
+      {/* 2. Search Bar with Filter Button */}
       <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md rounded-full px-4 py-2.5 shadow-xs border border-slate-200/70">
         <Search className="w-4 h-4 text-slate-400 shrink-0" />
         <input
@@ -81,7 +80,7 @@ export function Header({
         {onOpenSortModal && (
           <button
             onClick={onOpenSortModal}
-            className="text-slate-400 hover:text-[#0284c7] transition-colors p-0.5 cursor-pointer"
+            className="text-slate-400 hover:text-black transition-colors p-0.5 cursor-pointer"
             title="Filter by State or Sort"
           >
             <SlidersHorizontal className="w-4 h-4 stroke-[2.2]" />
@@ -89,21 +88,9 @@ export function Header({
         )}
       </div>
 
-      {/* 3. Circular Stories / Category Avatars (matching screenshot avatars row) */}
+      {/* 3. Circular Stories / Category Avatars (No dead plus button) */}
       <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar py-1">
-        {/* Plus (+) Add icon bubble */}
-        <button
-          onClick={() => onSelectCategory?.("All")}
-          className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group"
-        >
-          <div className="w-13 h-13 rounded-full bg-white/90 border border-dashed border-[#0284c7]/60 flex items-center justify-center text-[#0284c7] shadow-xs group-hover:scale-105 transition-all">
-            <Plus className="w-5 h-5 stroke-[2.5]" />
-          </div>
-          <span className="text-[11px] font-bold text-slate-700">All</span>
-        </button>
-
-        {/* Category Avatars */}
-        {CATEGORIES.filter((c) => c !== "All").map((cat) => {
+        {CATEGORIES.map((cat) => {
           const isSelected = selectedCategory === cat;
           const avatarUrl = CATEGORY_AVATARS[cat];
 
@@ -116,7 +103,7 @@ export function Header({
               <div
                 className={`relative w-13 h-13 rounded-full p-0.5 transition-all duration-200 shadow-xs group-hover:scale-105 ${
                   isSelected
-                    ? "ring-2 ring-[#0284c7] ring-offset-2 ring-offset-sky-100"
+                    ? "ring-2 ring-black ring-offset-2 ring-offset-sky-100"
                     : "border border-slate-200/90"
                 }`}
               >
@@ -131,7 +118,7 @@ export function Header({
               </div>
               <span
                 className={`text-[11px] font-bold tracking-tight ${
-                  isSelected ? "text-[#0284c7]" : "text-slate-600"
+                  isSelected ? "text-black" : "text-slate-600"
                 }`}
               >
                 {SHORT_NAMES[cat] || cat}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   motion,
   AnimatePresence,
@@ -32,6 +32,7 @@ export function CardDeck({
   const [history, setHistory] = useState<{ spot: Spot; action: "left" | "right" }[]>([]);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
   const [selectedDetailsSpot, setSelectedDetailsSpot] = useState<Spot | null>(null);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     setDeck(places);
@@ -44,8 +45,13 @@ export function CardDeck({
 
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-250, 250], [-14, 14]);
-  const likeOpacity = useTransform(x, [15, 80], [0, 1]);
-  const nopeOpacity = useTransform(x, [-80, -15], [1, 0]);
+  const likeOpacity = useTransform(x, [20, 90], [0, 1]);
+  const nopeOpacity = useTransform(x, [-90, -20], [1, 0]);
+
+  // Reset motion value when current card changes
+  useEffect(() => {
+    x.set(0);
+  }, [currentCard?.id, x]);
 
   const handleSwipe = (direction: "left" | "right") => {
     if (!currentCard) return;
@@ -64,33 +70,37 @@ export function CardDeck({
 
     setHistory((prev) => [{ spot: swipedSpot, action: direction }, ...prev]);
     setDeck((prev) => prev.slice(1));
+    x.set(0);
 
     if (deck.length <= 1) {
       onAllCardsSwiped();
     }
   };
 
+  const handleDragStart = () => {
+    isDraggingRef.current = true;
+  };
+
   const handleDragEnd = (_: any, info: PanInfo) => {
-    const threshold = 75;
-    const velocityThreshold = 320;
+    const threshold = 65;
+    const velocityThreshold = 250;
 
     if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
       handleSwipe("right");
     } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
       handleSwipe("left");
+    } else {
+      x.set(0);
     }
+
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 150);
   };
 
-  const handleToggleSaveCurrent = () => {
-    if (!currentCard) return;
-    if (isSaved?.(currentCard.id)) {
-      onRemoveSpot?.(currentCard.id);
-      toast.info("Removed from saved spots", { description: currentCard.name });
-    } else {
-      onSaveSpot(currentCard);
-      toast.success("Saved spot! 📍", {
-        description: currentCard.name,
-      });
+  const handleCardClick = () => {
+    if (!isDraggingRef.current && currentCard) {
+      setSelectedDetailsSpot(currentCard);
     }
   };
 
@@ -101,9 +111,9 @@ export function CardDeck({
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full max-w-[350px] sm:max-w-[370px] mx-auto relative px-3 select-none my-auto">
-        {/* Swipe Deck Container (aspect ratio matching screenshot) */}
+        {/* Swipe Deck Container */}
         <div className="relative w-full h-[450px] max-h-[58vh] flex items-center justify-center">
-          {/* 3rd Card in background (fanned out slightly right) */}
+          {/* 3rd Card in background */}
           {thirdCard && (
             <div
               key={thirdCard.id}
@@ -113,7 +123,7 @@ export function CardDeck({
             </div>
           )}
 
-          {/* 2nd Card in background (fanned out slightly left, exactly like screenshot) */}
+          {/* 2nd Card in background */}
           {nextCard && (
             <div
               key={nextCard.id}
@@ -131,6 +141,7 @@ export function CardDeck({
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.65}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               initial={{ scale: 0.96, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -149,8 +160,9 @@ export function CardDeck({
                 likeOpacity={likeOpacity}
                 nopeOpacity={nopeOpacity}
                 isSaved={isSaved?.(currentCard.id)}
-                onToggleSave={handleToggleSaveCurrent}
-                onOpenDetails={() => setSelectedDetailsSpot(currentCard)}
+                onSwipeRight={() => handleSwipe("right")}
+                onSwipeLeft={() => handleSwipe("left")}
+                onOpenDetails={handleCardClick}
               />
             </motion.div>
           </AnimatePresence>

@@ -129,11 +129,8 @@ export default function DiscoverPage() {
         )}
       </main>
 
-      {/* Floating 5-tab Bottom Navigation Bar */}
-      <BottomNav
-        savedCount={savedCount}
-        onOpenAddModal={() => setIsSortModalOpen(true)}
-      />
+      {/* Floating 2-tab Bottom Navigation Bar */}
+      <BottomNav savedCount={savedCount} />
 
       {/* Filter / State Modal */}
       <SortFilterModal
