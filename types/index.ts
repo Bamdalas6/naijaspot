@@ -14,16 +14,43 @@ export type NigerianState =
   | "Enugu"
   | "Cross River"
   | "Ogun"
+  | "Kano"
+  | "Kaduna"
   | "Edo"
   | "Delta"
-  | "Kano"
-  | "Kaduna";
+  | "Plateau"
+  | "Akwa Ibom"
+  | "Anambra"
+  | "Imo"
+  | "Abia"
+  | "Osun"
+  | "Ondo"
+  | "Kwara"
+  | "Benue"
+  | "Niger"
+  | "Nasarawa"
+  | "Kogi"
+  | "Bayelsa"
+  | "Taraba"
+  | "Adamawa"
+  | "Bauchi"
+  | "Borno"
+  | "Gombe"
+  | "Yobe"
+  | "Jigawa"
+  | "Katsina"
+  | "Kebbi"
+  | "Sokoto"
+  | "Zamfara"
+  | "Ebonyi"
+  | "Ekiti"
+  | string;
 
 export interface Spot {
   id: string;
   name: string;
   category: Exclude<SpotCategory, "All">;
-  priceRating: "Free" | "₦" | "₦₦" | "₦₦₦" | "₦₦₦₦";
+  priceRating: "Free" | "₦" | "₦₦" | "₦₦₦" | "₦₦₦₦" | string;
   priceRange?: string;
   city: string;
   state: NigerianState;
