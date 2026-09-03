@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 14%, #cce8fe 38%, #7ecaff 75%, #4ab8ff 100%);
+    background-attachment: fixed;
+    color: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 100vh;
+  }
+}
+
+/* Atmospheric Sky Blue and White Gradient */
+.bg-sky-gradient {
+  background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 12%, #cbe7fe 35%, #76c7ff 72%, #44b6ff 100%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

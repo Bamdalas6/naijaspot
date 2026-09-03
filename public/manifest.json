@@ -1,0 +1,9 @@
+{
+  "name": "NaijaSpots",
+  "short_name": "NaijaSpots",
+  "description": "Discover Nigeria's best spots and hangouts",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090a0f",
+  "theme_color": "#090a0f"
+}
