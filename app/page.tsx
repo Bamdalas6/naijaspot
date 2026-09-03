@@ -87,7 +87,7 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 h-screen overflow-hidden bg-sky-gradient relative pb-20 select-none">
+    <div className="flex flex-col flex-1 h-[100dvh] max-h-[100dvh] overflow-hidden bg-sky-gradient relative pb-20 select-none">
       {/* Top Section: Navigation + Search + Category Story Bubbles */}
       <Header
         selectedState={selectedState}

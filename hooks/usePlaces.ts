@@ -6,18 +6,23 @@ import { MOCK_SPOTS } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/client";
 
 export function usePlaces(selectedState: NigerianState, selectedCategory: SpotCategory) {
-  const [places, setPlaces] = useState<Spot[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Pre-populate with curated spots so cards appear immediately without layout shift
+  const [places, setPlaces] = useState<Spot[]>(() => {
+    let filtered = MOCK_SPOTS.filter((spot) => spot.state === selectedState);
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((spot) => spot.category === selectedCategory);
+    }
+    return filtered;
+  });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPlaces = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
     try {
       const supabase = createClient();
 
       if (supabase) {
+        setLoading(true);
         let query = supabase.from("spots").select("*");
 
         if (selectedState) {
@@ -37,17 +42,14 @@ export function usePlaces(selectedState: NigerianState, selectedCategory: SpotCa
         }
       }
 
-      // Fallback to rich mock data
+      // Filter from curated dataset
       let filtered = MOCK_SPOTS.filter((spot) => spot.state === selectedState);
-
       if (selectedCategory !== "All") {
         filtered = filtered.filter((spot) => spot.category === selectedCategory);
       }
-
       setPlaces(filtered);
     } catch (err: unknown) {
       console.error("Error fetching spots:", err);
-      // Fallback safely to mock data
       let filtered = MOCK_SPOTS.filter((spot) => spot.state === selectedState);
       if (selectedCategory !== "All") {
         filtered = filtered.filter((spot) => spot.category === selectedCategory);

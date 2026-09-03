@@ -30,8 +30,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased min-h-screen bg-sky-gradient text-slate-900 flex flex-col items-center justify-start`}>
-        <div className="w-full max-w-md min-h-screen flex flex-col bg-transparent shadow-2xl relative">
+      <body className={`${inter.className} antialiased h-[100dvh] max-h-[100dvh] overflow-hidden bg-sky-gradient text-slate-900 flex flex-col items-center justify-start`}>
+        <div className="w-full max-w-md h-full flex flex-col bg-transparent shadow-2xl relative overflow-hidden">
           {children}
         </div>
         <Toaster
