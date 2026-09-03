@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useDeferredValue } from "react";
 import { Header } from "@/components/Header";
 import { CardDeck } from "@/components/CardDeck";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,11 +11,20 @@ import { useSavedPlaces } from "@/hooks/useSavedPlaces";
 import { NigerianState, SpotCategory, Spot } from "@/types";
 import { Loader2 } from "lucide-react";
 
+const PRICE_WEIGHT: Record<string, number> = {
+  Free: 0,
+  "₦": 1,
+  "₦₦": 2,
+  "₦₦₦": 3,
+  "₦₦₦₦": 4,
+};
+
 export default function DiscoverPage() {
   const [selectedState, setSelectedState] = useState<NigerianState>("Lagos");
   const [selectedCategory, setSelectedCategory] = useState<SpotCategory>("All");
   const [selectedSort, setSelectedSort] = useState<SortOption>("featured");
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [isSortModalOpen, setIsSortModalOpen] = useState(false);
   const [deckCompleted, setDeckCompleted] = useState(false);
   const [deckKey, setDeckKey] = useState(0);
@@ -33,8 +42,8 @@ export default function DiscoverPage() {
     if (!places) return [];
     let list = [...places];
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (deferredSearchQuery.trim()) {
+      const q = deferredSearchQuery.toLowerCase();
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
@@ -49,33 +58,19 @@ export default function DiscoverPage() {
     }
 
     if (selectedSort === "price-asc") {
-      const priceWeight: Record<string, number> = {
-        Free: 0,
-        "₦": 1,
-        "₦₦": 2,
-        "₦₦₦": 3,
-        "₦₦₦₦": 4,
-      };
       return list.sort(
-        (a, b) => (priceWeight[a.priceRating] || 0) - (priceWeight[b.priceRating] || 0)
+        (a, b) => (PRICE_WEIGHT[a.priceRating] || 0) - (PRICE_WEIGHT[b.priceRating] || 0)
       );
     }
 
     if (selectedSort === "price-desc") {
-      const priceWeight: Record<string, number> = {
-        Free: 0,
-        "₦": 1,
-        "₦₦": 2,
-        "₦₦₦": 3,
-        "₦₦₦₦": 4,
-      };
       return list.sort(
-        (a, b) => (priceWeight[b.priceRating] || 0) - (priceWeight[a.priceRating] || 0)
+        (a, b) => (PRICE_WEIGHT[b.priceRating] || 0) - (PRICE_WEIGHT[a.priceRating] || 0)
       );
     }
 
     return list;
-  }, [places, searchQuery, selectedSort]);
+  }, [places, deferredSearchQuery, selectedSort]);
 
   const handleResetDeck = () => {
     setDeckCompleted(false);
