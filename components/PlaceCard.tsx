@@ -30,7 +30,8 @@ export function PlaceCard({
   return (
     <div
       onClick={onOpenDetails}
-      className="relative w-full h-full rounded-[30px] overflow-hidden shadow-2xl select-none cursor-pointer group"
+      className="relative w-full h-full rounded-[30px] overflow-hidden shadow-2xl select-none group"
+      draggable={false}
     >
       {/* Full-bleed Photo Background */}
       <Image
@@ -38,8 +39,9 @@ export function PlaceCard({
         alt={spot.name}
         fill
         priority={isFront}
+        draggable={false}
         sizes="(max-width: 768px) 100vw, 380px"
-        className="object-cover pointer-events-none group-hover:scale-105 transition-transform duration-500"
+        className="object-cover pointer-events-none select-none group-hover:scale-105 transition-transform duration-500"
       />
 
       {/* Subtle Readability Gradients */}
@@ -51,14 +53,14 @@ export function PlaceCard({
         <>
           <motion.div
             style={{ opacity: likeOpacity }}
-            className="absolute top-8 left-6 pointer-events-none z-30 transform -rotate-12 border-4 border-emerald-400 bg-emerald-500/80 backdrop-blur-sm text-white font-black text-xl tracking-widest px-4 py-1.5 rounded-2xl shadow-2xl"
+            className="absolute top-8 left-6 pointer-events-none z-30 transform -rotate-12 border-4 border-emerald-400 bg-emerald-500/85 backdrop-blur-sm text-white font-black text-xl tracking-widest px-4 py-1.5 rounded-2xl shadow-2xl"
           >
             LIKE ♥
           </motion.div>
 
           <motion.div
             style={{ opacity: nopeOpacity }}
-            className="absolute top-8 right-6 pointer-events-none z-30 transform rotate-12 border-4 border-rose-500 bg-rose-500/80 backdrop-blur-sm text-white font-black text-xl tracking-widest px-4 py-1.5 rounded-2xl shadow-2xl"
+            className="absolute top-8 right-6 pointer-events-none z-30 transform rotate-12 border-4 border-rose-500 bg-rose-500/85 backdrop-blur-sm text-white font-black text-xl tracking-widest px-4 py-1.5 rounded-2xl shadow-2xl"
           >
             NOPE ✕
           </motion.div>
@@ -87,7 +89,7 @@ export function PlaceCard({
               e.stopPropagation();
               onOpenDetails?.();
             }}
-            className="pointer-events-auto w-7 h-7 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/90 hover:text-white transition-all shadow-sm"
+            className="pointer-events-auto w-7 h-7 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/90 hover:text-white transition-all shadow-sm cursor-pointer"
             title="View Details"
           >
             <Info className="w-3.5 h-3.5" />
